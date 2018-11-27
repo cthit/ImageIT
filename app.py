@@ -12,11 +12,13 @@ db.bind(
     user=config.POSTGRES_USER,
     password=config.POSTGRES_PASSWORD,
     host=config.POSTGRES_HOST,
+    port=config.POSTGRES_PORT,
     database=config.POSTGRES_DB
 )
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = config.IMAGE_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = config.IMAGE_SIZE_CAP_BYTES
 
 if not os.path.exists(config.IMAGE_FOLDER):
     raise (Exception('Directory not found: "%s"\n'
@@ -30,29 +32,12 @@ class Image(db.Entity):
     userid = Required(uuid.UUID)
     uploadtime = Optional(datetime)
 
+
 db.generate_mapping(create_tables=False)
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
-
-
-
-# @app.route('/create-row')
-# def create_row():
-#     with(db_session):
-#         Image(
-#             imagelink="some/link.png"
-#         )
-#     return "row_added"
-#
-# @app.route('/get-rows')
-# def get_rows():
-#     rows = []
-#     with(db_session):
-#         rows = [*select(p for p in Image)]
-#     return str(rows)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -76,12 +61,14 @@ def upload_file():
                 )
                 id = image.imageid
                 image_directory = app.config['UPLOAD_FOLDER'] + "/" + str(id) + "/"
+
                 if not os.path.exists(image_directory):
                     os.makedirs(image_directory)
 
                 image.imagelink = image_directory + file.filename
                 file.save(os.path.join(image_directory, file.filename))
             return url_for('uploaded_file', imageid=image.imageid, filename=file.filename)
+
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -101,4 +88,4 @@ def uploaded_file(imageid, filename):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
