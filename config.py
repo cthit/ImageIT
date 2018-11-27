@@ -1,5 +1,7 @@
 import os
 
+# SECURITY
+API_KEY = os.environ.get('IMAGEIT_API_KEY', 'SUPERSECRETKEY')
 
 # SAVED IMAGES SETTINGS
 IMAGE_FOLDER = os.environ.get('IMAGEIT_IMAGE_FOLDER', './images')
@@ -12,3 +14,5 @@ POSTGRES_PASSWORD = os.environ.get('IMAGEIT_POSTGRES_PASSWORD', 'password')
 POSTGRES_HOST = os.environ.get('IMAGEIT_POSTGRES_HOST', 'localhost')
 POSTGRES_PORT = os.environ.get('IMAGEIT_POSTGRES_PORT', '5432')
 POSTGRES_DB = os.environ.get('IMAGEIT_POSTGRES_DB', 'postgres')
+
+
