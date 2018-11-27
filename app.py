@@ -75,13 +75,13 @@ def upload_file():
                     userid=userid
                 )
                 id = image.imageid
-                image_directory = app.config['UPLOAD_FOLDER'] + str(id) + "/"
+                image_directory = app.config['UPLOAD_FOLDER'] + "/" + str(id) + "/"
                 if not os.path.exists(image_directory):
                     os.makedirs(image_directory)
 
                 image.imagelink = image_directory + file.filename
                 file.save(os.path.join(image_directory, file.filename))
-            return redirect(url_for('uploaded_file', imageid=image.imageid, filename=file.filename))
+            return url_for('uploaded_file', imageid=image.imageid, filename=file.filename)
     return '''
     <!doctype html>
     <title>Upload new File</title>
