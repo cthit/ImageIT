@@ -4,7 +4,7 @@ import config
 from datetime import datetime
 
 from flask import Flask, flash, request, redirect, url_for, send_from_directory
-from pony.orm import Database, PrimaryKey, Required
+from pony.orm import Database, PrimaryKey, Required, db_session, select, Optional
 
 db = Database()
 db.bind(
@@ -24,15 +24,34 @@ if not os.path.exists(config.IMAGE_FOLDER):
 
 
 class Image(db.Entity):
-    imageid = PrimaryKey(uuid, auto=True)
+    _table_ = "imageittable"
+    imageid = PrimaryKey(uuid.UUID, auto=True)
     imagelink = Required(str)
-    userid = Required(uuid, auto=True)
-    uploadtime = Required(datetime, auto=True)
+    userid = Required(uuid.UUID)
+    uploadtime = Optional(datetime)
 
+db.generate_mapping(create_tables=False)
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
+
+
+
+# @app.route('/create-row')
+# def create_row():
+#     with(db_session):
+#         Image(
+#             imagelink="some/link.png"
+#         )
+#     return "row_added"
+#
+# @app.route('/get-rows')
+# def get_rows():
+#     rows = []
+#     with(db_session):
+#         rows = [*select(p for p in Image)]
+#     return str(rows)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -43,28 +62,42 @@ def upload_file():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
+        userid = request.values['userid']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-            return redirect(url_for('uploaded_file', filename=file.filename))
+            with(db_session):
+                image = Image(
+                    imagelink="somelink/link.png",
+                    userid=userid
+                )
+                id = image.imageid
+                image_directory = app.config['UPLOAD_FOLDER'] + str(id) + "/"
+                if not os.path.exists(image_directory):
+                    os.makedirs(image_directory)
+
+                image.imagelink = image_directory + file.filename
+                file.save(os.path.join(image_directory, file.filename))
+            return redirect(url_for('uploaded_file', imageid=image.imageid, filename=file.filename))
     return '''
     <!doctype html>
     <title>Upload new File</title>
     <h1>Upload new File</h1>
     <form method=post enctype=multipart/form-data>
       <input type=file name=file>
+      <input type="text" name="userid">
       <input type=submit value=Upload>
     </form>
     '''
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route('/uploads/<imageid>/<filename>')
+def uploaded_file(imageid, filename):
+    image_directory = app.config['UPLOAD_FOLDER'] + imageid + "/"
+    return send_from_directory(image_directory, filename)
 
 
 if __name__ == '__main__':
