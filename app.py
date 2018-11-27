@@ -35,13 +35,19 @@ class Image(db.Entity):
 
 db.generate_mapping(create_tables=False)
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
 
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
+        # verify api key
+        if config.API_KEY != request.values["API_KEY"]:
+            return "Invalid API key"
+
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -75,6 +81,7 @@ def upload_file():
     <h1>Upload new File</h1>
     <form method=post enctype=multipart/form-data>
       <input type=file name=file>
+      <input type="text" name="API_KEY">
       <input type="text" name="userid">
       <input type=submit value=Upload>
     </form>
