@@ -1,19 +1,19 @@
 import os
 from flask import Flask, flash, request, redirect, url_for, send_from_directory
 
-UPLOAD_FOLDER = 'C:/ImageIT/images'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+import config
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = config.IMAGE_FOLDER
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(config.IMAGE_FOLDER):
+    raise(Exception('Directory not found: "%s"\n'
+                    'Create the directory or change "config.py"' % config.IMAGE_FOLDER))
 
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
 
 
 @app.route('/', methods=['GET', 'POST'])
