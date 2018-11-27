@@ -1,14 +1,33 @@
 import os
-from flask import Flask, flash, request, redirect, url_for, send_from_directory
-
+import uuid
 import config
+from datetime import datetime
+
+from flask import Flask, flash, request, redirect, url_for, send_from_directory
+from pony.orm import Database, PrimaryKey, Required
+
+db = Database()
+db.bind(
+    provider='postgres',
+    user=config.POSTGRES_USER,
+    password=config.POSTGRES_PASSWORD,
+    host=config.POSTGRES_HOST,
+    database=config.POSTGRES_DB
+)
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = config.IMAGE_FOLDER
 
 if not os.path.exists(config.IMAGE_FOLDER):
-    raise(Exception('Directory not found: "%s"\n'
-                    'Create the directory or change "config.py"' % config.IMAGE_FOLDER))
+    raise (Exception('Directory not found: "%s"\n'
+                     'Create the directory or change "config.py"' % config.IMAGE_FOLDER))
+
+
+class Image(db.Entity):
+    imageid = PrimaryKey(uuid, auto=True)
+    imagelink = Required(str)
+    userid = Required(uuid, auto=True)
+    uploadtime = Required(datetime, auto=True)
 
 
 def allowed_file(filename):
