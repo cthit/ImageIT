@@ -83,7 +83,7 @@ def upload_file():
 
 @app.route('/uploads/<imageid>/<filename>')
 def uploaded_file(imageid, filename):
-    image_directory = app.config['UPLOAD_FOLDER'] + imageid + "/"
+    image_directory = app.config['UPLOAD_FOLDER'] + "/" + imageid + "/"
     return send_from_directory(image_directory, filename)
 
 
