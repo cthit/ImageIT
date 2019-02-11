@@ -5,17 +5,15 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: password
-    ports:
-      - 5432:5432
     volumes: 
       - ./data:/var/lib/postgresql/data 
   
   app: 
     build: 
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
-      - 5000:5000
+      - 5122:5000
     volumes:
       - ./images:/usr/src/app/images
 
@@ -23,5 +21,5 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8085:8080
     
