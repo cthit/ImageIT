@@ -29,7 +29,7 @@ class Image(db.Entity):
     _table_ = "imageittable"
     imageid = PrimaryKey(uuid.UUID, auto=True)
     imagelink = Required(str)
-    userid = Required(uuid.UUID)
+    imageid = Required(uuid.UUID)
     uploadtime = Optional(datetime)
 
 
@@ -53,7 +53,7 @@ def upload_file():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        userid = request.values['userid']
+        imageid = request.values['imageid']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
@@ -63,7 +63,7 @@ def upload_file():
             with(db_session):
                 image = Image(
                     imagelink="somelink/link.png",
-                    userid=userid
+                    imageid=imageid
                 )
                 id = image.imageid
                 image_directory = app.config['UPLOAD_FOLDER'] + "/" + str(id) + "/"
@@ -82,7 +82,7 @@ def upload_file():
     <form method=post enctype=multipart/form-data>
       <input type=file name=file>
       <input type="text" name="API_KEY">
-      <input type="text" name="userid">
+      <input type="text" name="imageid">
       <input type=submit value=Upload>
     </form>
     '''

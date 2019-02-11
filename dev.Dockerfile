@@ -15,6 +15,8 @@ ENV IMAGEIT_POSTGRES_PASSWORD password
 ENV IMAGEIT_POSTGRES_DB imageit
 ENV IMAGEIT_POSTGRES_HOST db
 
+ENV IMAGEIT_API_KEY secret 
+
 COPY . . 
 
 CMD ["sh", "startscript.sh"]
