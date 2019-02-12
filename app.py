@@ -44,7 +44,7 @@ def allowed_file(filename):
 def upload_file():
     if request.method == 'POST':
         # verify api key
-        if config.API_KEY != request.values["API_KEY"]:
+        if config.API_KEY != request.headers["API_KEY"]:
             return "Invalid API key"
 
         # check if the post request has the file part
@@ -58,7 +58,7 @@ def upload_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            with(db_session):
+            with db_session:
                 image = Image(
                     imagelink="somelink/link.png",
                 )
