@@ -32,7 +32,7 @@ class Image(db.Entity):
     uploadtime = Optional(datetime)
 
 
-db.generate_mapping(create_tables=False)
+db.generate_mapping(create_tables=True)
 
 
 def allowed_file(filename):

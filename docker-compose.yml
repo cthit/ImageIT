@@ -1,12 +1,14 @@
 version: "2"
 services:
   db:
-    build:
-      context: .
-      dockerfile: db.Dockerfile
+    image: postgres
     restart: always
     ports:
       - 5431:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: imageit
+      POSTGRES_DB: imageit
 
   adminer:
     image: adminer
